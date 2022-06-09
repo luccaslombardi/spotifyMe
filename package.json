@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "",
   "main": "src/server.js",
+  "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "nodemon"
@@ -10,9 +11,11 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "express": "^4.18.1"
+    "express": "^4.18.1",
+    "spotify-web-api-node": "^5.0.2"
   },
   "devDependencies": {
+    "axios": "^0.27.2",
     "nodemon": "^2.0.16"
   }
 }
