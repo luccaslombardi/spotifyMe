@@ -1,6 +1,6 @@
 import express from 'express'
 import SpotifyWebApi from 'spotify-web-api-node';
-import { writeFileSync } from 'fs';
+import dotenv from "dotenv";
 
 const scopes = [
   'ugc-image-upload',
@@ -24,14 +24,14 @@ const scopes = [
   'user-follow-modify'
 ];
 
+dotenv.config();
 const app = express();
-const port = 8888;
+const port = process.env.PORT;
 
-// credentials are optional
 const spotifyApi = new SpotifyWebApi({
   redirectUri: `http://localhost:${port}/callback`,
-  clientId: 'ebc85e6bad48446a9bf963fe12b280a5',
-  clientSecret: '9a6e9935381b4735b0aa14179202e22f'
+  clientId: process.env.CLIENT_ID,
+  clientSecret: process.env.CLIENT_SECRET
 });
 
 
@@ -59,6 +59,8 @@ app.get('/callback', (req, res) => {
       const access_token = data.body['access_token'];
       const refresh_token = data.body['refresh_token'];
       const expires_in = data.body['expires_in'];
+
+      console.log(`Token expira em: ${expires_in}ms`)
       
 
       spotifyApi.setAccessToken(access_token);
@@ -66,6 +68,37 @@ app.get('/callback', (req, res) => {
 
       console.log('access_token:', access_token);
       console.log('refresh_token:', refresh_token);
+
+      async function getProfile() {
+          const profile = await spotifyApi.getMe()
+          return profile.body
+        }
+
+      getProfile()
+      .then(result => {
+        console.log(result)
+        res.send(result)
+      })
+      .catch(error => res.send(error))
+
+      
+      setInterval(async () => {
+        const data = await spotifyApi.refreshAccessToken();
+        const access_token = data.body['access_token'];
+
+        console.log('Token foi atualizado!');
+        console.log('novo token:', access_token);
+        
+        spotifyApi.setAccessToken(access_token);
+      }, expires_in / 2 * 1000);
+    })
+    .catch(error => {
+      console.error('Error getting Tokens:', error);
+      res.send(`Error getting Tokens: ${error}`);
+    });
+})  
+      
+      /*
 
       function getMyData() {
         (async () => {
@@ -123,47 +156,10 @@ app.get('/callback', (req, res) => {
         `Sucessfully retreived access token. Expires in ${expires_in} s.`
       );
       getMyData()
-      res.send(
-        
-      );
-
-      setInterval(async () => {
-        const data = await spotifyApi.refreshAccessToken();
-        const access_token = data.body['access_token'];
-
-        console.log('The access token has been refreshed!');
-        console.log('access_token:', access_token);
-        
-        spotifyApi.setAccessToken(access_token);
-        
-        
-      }, expires_in / 2 * 1000);
-    })
-    .catch(error => {
-      console.error('Error getting Tokens:', error);
-      res.send(`Error getting Tokens: ${error}`);
-    });
-})  
+      */
 
 app.listen(port, () =>
   console.log(
     `Server is running at ${port}, now go to /login`
   )
 );
-
-
-
-/*
-// Get Elvis' albums
-spotifyApi.getArtistAlbums(
-    '43ZHCT0cAZBISjO8DG9PnE',
-    { limit: 10, offset: 20 },
-    function(err, data) {
-      if (err) {
-        console.error('Something went wrong!');
-      } else {
-        console.log(data.body);
-      }
-    }
-  )
-*/
