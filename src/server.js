@@ -26,7 +26,7 @@ const scopes = [
 
 dotenv.config();
 const app = express();
-const port = process.env.PORT;
+const port = process.env.PORT || 8888;
 
 const spotifyApi = new SpotifyWebApi({
   redirectUri: `http://localhost:${port}/callback`,
@@ -68,82 +68,42 @@ app.get("/callback", (req, res) => {
       console.log("refresh_token:", refresh_token);
 
       async function getProfile() {
-        const data = await spotifyApi.getMe();
+        const dataProfile = await spotifyApi.getMe();
+       const dataPlaylists = await spotifyApi.getUserPlaylists(dataProfile.body.id, {
+          limit: 30
+        });
+        const playslistsByMe = []
 
-        //getting Playlists
-        getUserPlaylists(data.body.id)
-          .then((result) => {
-            console.log(result.body.items[5]);
-          })
-          .catch((error) => console.log(error));
+            for (var i in dataPlaylists.body.items) {
+              if (dataPlaylists.body.items[i].owner.display_name === "Luccas Lombardi") {
+                console.log(dataPlaylists.body.items[i].name)
+                playslistsByMe.push(dataPlaylists.body.items[i].name) 
+              }
+            }
 
         const profile = {
-          name: data.body.display_name,
-          image: data.body.images[0].url,
+          name: dataProfile.body.display_name,
+          image: dataProfile.body.images[0].url,
+          playlists: playslistsByMe
         };
-
         return profile;
       }
 
-      async function getUserPlaylists(userName) {
-        const data = await spotifyApi.getUserPlaylists(userName);
-        return data;
-      }
-
-      /*
-
-      async function getUserPlaylists(userName) {
-        const data = await spotifyApi.getUserPlaylists(userName)
-      
-        console.log("---------------+++++++++++++++++++++++++")
-        let playlists = []
-      
-        for (let playlist of data.body.items) {
-          console.log(playlist.name + " " + playlist.id)
-          
-          let tracks = await getPlaylistTracks(playlist.id, playlist.name);
-          console.log(tracks);
-      
-          const tracksJSON = { tracks }
-          let data = JSON.stringify(tracksJSON);
-          writeFileSync(playlist.name+'.json', data);
-        }
-      }*/
+      async function getSomething() {
+        const data = await spotifyApi.getArtistTopTracks()
+      } 
 
       getProfile()
         .then((result) => {
           res.send(`
         <h1>${result.name}</h1>
         <img src="${result.image}" alt="Luccas" />
+        <h3>Playlists</h3>
+        <p>${result.playlists}</p>
         `);
         })
         .catch((error) => res.send(error));
 
-      /*
-        //GET SONGS FROM PLAYLIST
-      async function getPlaylistTracks(playlistId, playlistName) {
-      
-        const data = await spotifyApi.getPlaylistTracks(playlistId, {
-          offset: 20,
-          limit: 10,
-          fields: 'items'
-        })
-      
-        console.log('The playlist contains these tracks', data.body);
-        console.log('The playlist contains these tracks: ', data.body.items[0].track);
-        console.log("'" + playlistName + "'" + ' contains these tracks:');
-        let tracks = [];
-      
-        for (let track_obj of data.body.items) {
-          const track = track_obj.track
-          tracks.push(track);
-          console.log(track.name + " : " + track.artists[0].name)
-        }
-        
-        console.log("---------------+++++++++++++++++++++++++")
-        return tracks;
-      }
-*/
       setInterval(async () => {
         const data = await spotifyApi.refreshAccessToken();
         const access_token = data.body["access_token"];
