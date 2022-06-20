@@ -82,6 +82,7 @@ routes.get("/callback", (req, res) => {
           );
         })
         .catch((error) => res.send(error));
+        /*
 
         spotifyApi.setRepeat('track')
   .then(function () {
@@ -90,24 +91,7 @@ routes.get("/callback", (req, res) => {
     //if the user making the request is non-premium, a 403 FORBIDDEN response code will be returned
     console.log('Something went wrong!', err);
   });
-      /* Get a User’s Top Tracks*/
-     /* spotifyApi.getMyTopTracks().then(
-        function (data) {
-          console.log("\nTop Tracks:\n");
-          const topTracks = data.body.items;
-          for (let i in topTracks) {
-            console.log("Track: ", topTracks[i].name);
-            console.log("Artists:");
-            for (let y in topTracks[i].artists) {
-              console.log(topTracks[i].artists[y].name);
-            }
-            console.log("---------------------");
-          }
-        },
-        function (err) {
-          console.log("Something went wrong!", err);
-        }
-      );*/
+  */
 
       setInterval(async () => {
         const data = await spotifyApi.refreshAccessToken();
