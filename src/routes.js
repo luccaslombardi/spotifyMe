@@ -76,13 +76,22 @@ routes.get("/callback", (req, res) => {
           <img src="${result.image}" alt="Luccas" />
           <h2>Playlists</h2>
           <div>${result.playlists}</div>
+          <h2>Top Tracks</h2>
+          <div>${result.topTracks}</div>
           `
           );
         })
         .catch((error) => res.send(error));
 
+        spotifyApi.setRepeat('track')
+  .then(function () {
+    console.log('Repeat track.');
+    }, function(err) {
+    //if the user making the request is non-premium, a 403 FORBIDDEN response code will be returned
+    console.log('Something went wrong!', err);
+  });
       /* Get a User’s Top Tracks*/
-      spotifyApi.getMyTopTracks().then(
+     /* spotifyApi.getMyTopTracks().then(
         function (data) {
           console.log("\nTop Tracks:\n");
           const topTracks = data.body.items;
@@ -98,7 +107,7 @@ routes.get("/callback", (req, res) => {
         function (err) {
           console.log("Something went wrong!", err);
         }
-      );
+      );*/
 
       setInterval(async () => {
         const data = await spotifyApi.refreshAccessToken();
