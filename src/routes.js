@@ -77,21 +77,16 @@ routes.get("/callback", (req, res) => {
           <h2>Playlists</h2>
           <div>${result.playlists}</div>
           <h2>Top Tracks</h2>
-          <div>${result.topTracks}</div>
+          <img src="${result.topTracks.images[0]}" width=300 height=300 alt="Track1" />
+          <h3>${result.topTracks.names[0]}</h3>
+          <img src="${result.topTracks.images[1]}" width=300 height=300 alt="Track2" />
+          <h3>${result.topTracks.names[1]}</h3>
+          <img src="${result.topTracks.images[2]}" width=300 height=300 alt="Track3" />
+          <h3>${result.topTracks.names[2]}</h3>
           `
           );
         })
         .catch((error) => res.send(error));
-        /*
-
-        spotifyApi.setRepeat('track')
-  .then(function () {
-    console.log('Repeat track.');
-    }, function(err) {
-    //if the user making the request is non-premium, a 403 FORBIDDEN response code will be returned
-    console.log('Something went wrong!', err);
-  });
-  */
 
       setInterval(async () => {
         const data = await spotifyApi.refreshAccessToken();

@@ -7,7 +7,7 @@ async function getUserPlaylists(userNameId, userName) {
   const playlists = [];
 
   for (let i in data.body.items) {
-   if (data.body.items[i].owner.display_name === userName) {
+    if (data.body.items[i].owner.display_name === userName) {
       playlists.push(data.body.items[i].name);
     }
   }
@@ -16,13 +16,19 @@ async function getUserPlaylists(userNameId, userName) {
 }
 
 async function getTopTracks() {
-  const data = await spotifyApi.getMyTopTracks({limit:3})
-  const topTracks = []
-  for (let i in data.body.items){
-   topTracks.push(data.body.items[i].name)
+  const data = await spotifyApi.getMyTopTracks({ limit: 3 });
+  const topTracks = {
+    names: [],
+    images: [],
+  };
+  for (let i in data.body.items) {
+    topTracks.names.push(data.body.items[i].name);
+    topTracks.images.push(data.body.items[i].album.images[0].url);
   }
 
-  return topTracks
+  console.log(topTracks);
+
+  return topTracks;
 }
 
 export async function getProfile() {
@@ -31,13 +37,16 @@ export async function getProfile() {
     data.body.id,
     data.body.display_name
   );
-  const topTracks = await getTopTracks()
+  const topTracks = await getTopTracks();
 
   const profile = {
     name: data.body.display_name,
     image: data.body.images[0].url,
     playlists: playlists,
-    topTracks: topTracks
+    topTracks: {
+      names: topTracks.names,
+      images: topTracks.images,
+    },
   };
   return profile;
 }
